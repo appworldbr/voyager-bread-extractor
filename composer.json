@@ -1,5 +1,5 @@
 {
-    "name": "appworld/voyager-bread-extractor",
+    "name": "appworldbr/voyager-bread-extractor",
     "description": "Extract Voyager BREAD from database to Seeder file.",
     "type": "voyager-package",
     "license": "MIT",

@@ -12,7 +12,7 @@ Extract Voyager BREAD from database to Seeder File.
 ### Installing
 
 ```dash
-composer require appworld/voyager-bread-extractor
+composer require appworldbr/voyager-bread-extractor
 ```
 
 ## Usage
