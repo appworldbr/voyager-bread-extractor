@@ -1,0 +1,65 @@
+<?php
+
+use Illuminate\Database\Seeder;
+use TCG\Voyager\Models\DataType;
+use TCG\Voyager\Models\DataRow;
+use TCG\Voyager\Models\Permission;
+use TCG\Voyager\Models\Menu;
+use TCG\Voyager\Models\MenuItem;
+use TCG\Voyager\Models\Translation;
+
+class DummyTableNameBREADTableSeeder extends Seeder
+{
+    public function run(){
+
+        //Data Type DummyDataType
+
+
+        //Data Row DummyDataRow
+
+
+        //Menu Item DummyMenuItem
+
+
+        //Permissions DummyPermissions
+
+
+        //Translations DummyTranslations
+    }
+
+    protected function dataRow($type, $field)
+    {
+        return DataRow::firstOrNew([
+            'data_type_id' => $type->id,
+            'field'        => $field,
+        ]);
+    }
+
+    protected function dataType($field, $for)
+    {
+        return DataType::firstOrNew([$field => $for]);
+    }
+
+    protected function arr($par, $id)
+    {
+        return [
+            'table_name'  => $par[0],
+            'column_name' => $par[1],
+            'foreign_key' => $id,
+        ];
+    }
+
+    protected function trans($lang, $keys, $value)
+    {
+        $_t = Translation::firstOrNew(array_merge($keys, [
+            'locale' => $lang,
+        ]));
+
+        if (!$_t->exists) {
+            $_t->fill(array_merge(
+                $keys,
+                ['value' => $value]
+            ))->save();
+        }
+    }
+}

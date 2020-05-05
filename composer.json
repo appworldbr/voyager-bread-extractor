@@ -1,0 +1,26 @@
+{
+    "name": "appworld/voyager-bread-extractor",
+    "description": "Extract Voyager BREAD from database to Seeder file.",
+    "type": "voyager-package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcelo Araujo Jr.",
+            "email": "mlajx.ma@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AppWorld\\VoyagerBreadExtractor\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AppWorld\\VoyagerBreadExtractor\\VoyagerBreadExtractorServiceProvider"
+            ]
+        }
+    }
+}
