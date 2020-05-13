@@ -95,8 +95,6 @@ class MakeBREADSeeder extends GeneratorCommand
         $controller = (String) Str::of($this->datatype->controller)->replace('\\', '\\\\');
         $details = $this->detailsToStr($this->datatype->details);
 
-        // dd($details);
-
         $dataTypeStr = "
         \$dataType = \$this->dataType('slug', '{$this->datatype->slug}');
         if (!\$dataType->exists) {
@@ -179,17 +177,17 @@ class MakeBREADSeeder extends GeneratorCommand
     }
 
     protected function generateTranslations(){
-
         $translations_str = "";
-        $translations = Translation::where('foreign_key', $this->datatype->id)->get();
+        $translations = Translation::where([
+            ['foreign_key', '=', $this->datatype->id],
+            ['table_name', '=', 'data_types']
+        ])->get();
         if($translations->count()){
-            $translations_str = "
-            \$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();
-            if (\$datatype->exists) {";
+            $translations_str = "\n\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\tif (\$datatype->exists) {";
             foreach($translations as $trans){
-                $translations_str .= "\n\t\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
+                $translations_str .= "\n\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
             }
-            $translations_str .= "\n\t\t\t}";
+            $translations_str .= "\n\t\t}";
         }
         return $translations_str;
     }
