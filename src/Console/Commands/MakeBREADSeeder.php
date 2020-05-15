@@ -144,49 +144,60 @@ class MakeBREADSeeder extends GeneratorCommand
 
     protected function generateMenuItem(){
 
-        $menu_item_str = "";
-
+        $menu_item_str = "\n\t\t\t//--- Menu Not Found ---";
         $menu_item = MenuItem::where('route', "voyager.{$this->datatype->slug}.index")->first();
         if($menu_item){
+            $menu_item_str = "\n\t\tif(config('voyager.bread.add_menu_item')){";
+
             $parent_id = $menu_item->parent_id ?? 'null';
             $parameters = $this->detailsToStr($menu_item->parameters);
-            $menu_item_str = "\n\t\t\$menu = Menu::where('name', 'admin')->firstOrFail();
-        \$menuItem = MenuItem::firstOrNew([
-            'menu_id' => \$menu->id,
-            'title'   => '{$menu_item->title}',
-            'url'     => '{$menu_item->url}',
-            'route'   => '{$menu_item->route}',
-        ]);
-        if (!\$menuItem->exists) {
-            \$menuItem->fill([
-                'target'     => '{$menu_item->target}',
-                'icon_class' => '{$menu_item->icon_class}',
-                'color'      => '{$menu_item->color}',
-                'parent_id'  => {$parent_id},
-                'order'      => {$menu_item->order},
-                'parameters' => {$parameters}
-            ])->save();
-        }\n";
+            $menu_item_str .= "\n\t\t\$menu = Menu::where('name', config('voyager.bread.default_menu'))->firstOrFail();
+            \$menuItem = MenuItem::firstOrNew([
+                'menu_id' => \$menu->id,
+                'title'   => '{$menu_item->title}',
+                'url'     => '{$menu_item->url}',
+                'route'   => '{$menu_item->route}',
+            ]);
+            if (!\$menuItem->exists) {
+                \$menuItem->fill([
+                    'target'     => '{$menu_item->target}',
+                    'icon_class' => '{$menu_item->icon_class}',
+                    'color'      => '{$menu_item->color}',
+                    'parent_id'  => {$parent_id},
+                    'order'      => {$menu_item->order},
+                    'parameters' => {$parameters}
+                ])->save();
+            }";
+
+            $menu_item_str .= "\n\t\t}\n";
+
         }
         return $menu_item_str;
     }
 
     protected function generatePermissions(){
-        $permissions = "\n\t\tPermission::generateFor('{$this->datatype->slug}');\n";
+        $permissions = "\n\t\tif(config('voyager.bread.add_permission')){";
+        $permissions .= "\n\t\t\tPermission::generateFor('{$this->datatype->slug}');";
+        $permissions .= "\n\t\t\t\$role = Role::where('name', config('voyager.bread.default_role'))->firstOrFail();";
+        $permissions .= "\n\t\t\t\$permissions = Permission::where(['table_name' => '{$this->datatype->slug}'])->get()->pluck('id')->all();";
+        $permissions .= "\n\t\t\t\$role->permissions()->attach(\$permissions);";
+        $permissions .= "\n\t\t}\n";
         return $permissions;
     }
 
     protected function generateTranslations(){
-        $translations_str = "";
+        $translations_str = "\n\t\t//--- Translations Not Found ---";
         $translations = Translation::where([
             ['foreign_key', '=', $this->datatype->id],
             ['table_name', '=', 'data_types']
         ])->get();
         if($translations->count()){
-            $translations_str = "\n\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\tif (\$datatype->exists) {";
+            $translations_str = "\n\t\tif(config('voyager.multilingual.enabled')){";
+            $translations_str .= "\n\t\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\tif (\$datatype->exists) {";
             foreach($translations as $trans){
-                $translations_str .= "\n\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
+                $translations_str .= "\n\t\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
             }
+            $translations_str .= "\n\t\t\t}";
             $translations_str .= "\n\t\t}";
         }
         return $translations_str;
