@@ -32,7 +32,7 @@ Them a file in `database/seeds` will be created with `data_types`, `data_row`, `
 After that, if you want to migrate with this seed, first you will need run `composer dump-autoload` ([read more](https://laravel.com/docs/7.x/seeding#running-seeders)) and them run `php artisan db:seed --class=CLASSNAME` ([read more](https://laravel.com/docs/7.x/seeding#running-seeders)).
 
 ```dash
-php artisan db:seed --class=ProductsBREADTableSeeder`
+php artisan db:seed --class=ProductsBREADTableSeeder
 ```
 
 or you can add the Seeder file in `DatabaseSeeder.php` file ([read more](https://laravel.com/docs/7.x/seeding#introduction))
