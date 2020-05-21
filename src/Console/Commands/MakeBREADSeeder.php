@@ -177,7 +177,7 @@ class MakeBREADSeeder extends GeneratorCommand
 
     protected function generatePermissions(){
         $permissions = "\n\t\tif(config('voyager.bread.add_permission')){";
-        $permissions .= "\n\t\t\tPermission::generateFor('{$this->datatype->slug}');";
+        $permissions .= "\n\t\t\tPermission::generateFor(Str::snake('{$this->datatype->slug}'));";
         $permissions .= "\n\t\t\t\$role = Role::where('name', config('voyager.bread.default_role'))->firstOrFail();";
         $permissions .= "\n\t\t\t\$permissions = Permission::where(['table_name' => '{$this->datatype->slug}'])->get()->pluck('id')->all();";
         $permissions .= "\n\t\t\t\$role->permissions()->attach(\$permissions);";
@@ -193,7 +193,7 @@ class MakeBREADSeeder extends GeneratorCommand
         ])->get();
         if($translations->count()){
             $translations_str = "\n\t\tif(config('voyager.multilingual.enabled')){";
-            $translations_str .= "\n\t\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\tif (\$datatype->exists) {";
+            $translations_str .= "\n\t\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\t\tif (\$datatype->exists) {";
             foreach($translations as $trans){
                 $translations_str .= "\n\t\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
             }
