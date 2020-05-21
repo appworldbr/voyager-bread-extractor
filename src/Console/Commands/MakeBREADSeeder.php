@@ -15,13 +15,14 @@ class MakeBREADSeeder extends GeneratorCommand
     protected $description = 'Extract Voyager BREAD from database to SeederFile.';
     protected $type = 'Seeder';
 
+    protected $tableName;
     protected $modelStr;
     protected $model;
     protected $datatype;
 
     public function handle()
     {
-        $this->setModel();
+        $this->setDefaultData();
         $name = $this->qualifyClass($this->generateTableName() . "BREADTableSeeder");
 
         $path = $this->getPath($name);
@@ -50,7 +51,6 @@ class MakeBREADSeeder extends GeneratorCommand
     protected function replaceClass($stub, $name)
     {
         $stub = parent::replaceClass($stub, $name);
-
         $stub = str_replace('DummyTableName',  $this->generateTableName(), $stub);
         $stub = str_replace('DummyDataType',  $this->generateDataType(), $stub);
         $stub = str_replace('DummyDataRow',  $this->generateDataRow(), $stub);
@@ -78,13 +78,14 @@ class MakeBREADSeeder extends GeneratorCommand
         ];
     }
 
-    protected function setModel(){
+    protected function setDefaultData(){
         $this->modelStr = (String) Str::of($this->argument('name'))->replace('/', '\\');
+        $this->tableName = (new $this->modelStr)->getTable();
         $this->model = new $this->modelStr;
     }
 
     protected function generateTableName(){
-        return Str::studly((new $this->modelStr)->getTable());
+        return Str::studly($this->tableName);
     }
 
     protected function generateDataType(){
@@ -177,9 +178,9 @@ class MakeBREADSeeder extends GeneratorCommand
 
     protected function generatePermissions(){
         $permissions = "\n\t\tif(config('voyager.bread.add_permission')){";
-        $permissions .= "\n\t\t\tPermission::generateFor(Str::snake('{$this->datatype->slug}'));";
+        $permissions .= "\n\t\t\tPermission::generateFor('{$this->tableName}');";
         $permissions .= "\n\t\t\t\$role = Role::where('name', config('voyager.bread.default_role'))->firstOrFail();";
-        $permissions .= "\n\t\t\t\$permissions = Permission::where(['table_name' => '{$this->datatype->slug}'])->get()->pluck('id')->all();";
+        $permissions .= "\n\t\t\t\$permissions = Permission::where(['table_name' => '{$this->tableName}'])->get()->pluck('id')->all();";
         $permissions .= "\n\t\t\t\$role->permissions()->attach(\$permissions);";
         $permissions .= "\n\t\t}\n";
         return $permissions;

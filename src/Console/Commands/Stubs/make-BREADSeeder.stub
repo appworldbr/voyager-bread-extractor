@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use TCG\Voyager\Models\DataType;
 use TCG\Voyager\Models\DataRow;
