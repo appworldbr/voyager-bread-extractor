@@ -192,15 +192,35 @@ class MakeBREADSeeder extends GeneratorCommand
             ['foreign_key', '=', $this->datatype->id],
             ['table_name', '=', 'data_types']
         ])->get();
-        if($translations->count()){
-            $translations_str = "\n\t\tif(config('voyager.multilingual.enabled')){";
-            $translations_str .= "\n\t\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\t\tif (\$datatype->exists) {";
-            foreach($translations as $trans){
-                $translations_str .= "\n\t\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
-            }
-            $translations_str .= "\n\t\t\t}";
-            $translations_str .= "\n\t\t}";
+
+        if(!$translations->count()){
+            return $translations_str;
         }
+
+        $translations_str = "\n\t\tif(config('voyager.multilingual.enabled')){";
+
+        $translations_str .= "\n\t\t\t\$datatype = DataType::where('slug', \"{$this->datatype->slug}\")->firstOrFail();\n\t\t\tif (\$datatype->exists) {";
+        foreach($translations as $trans){
+            $translations_str .= "\n\t\t\t\t\$this->trans('{$trans->locale}', \$this->arr(['{$trans->table_name}', '{$trans->column_name}'], \$datatype->id), '{$trans->value}');";
+        }
+        $translations_str .= "\n\t\t\t}";
+
+        foreach($this->datatype->rows as $row){
+            $translations_str .= "\n\t\t\t\$datarow = DataRow::where('data_type_id', \$datatype->id)->where('field', \"{$row->field}\")->firstOrFail();\n\t\t\tif (\$datarow->exists) {";
+                $translations_row = Translation::where([
+                    ['foreign_key', '=', $row->id],
+                    ['table_name', '=', 'data_rows']
+                ])->get();
+                if($translations_row->count()){
+                    foreach($translations_row as $trans_row){
+                        $translations_str .= "\n\t\t\t\t\$this->trans('{$trans_row->locale}', \$this->arr(['{$trans_row->table_name}', '{$trans_row->column_name}'], \$datarow->id), '{$trans_row->value}');";
+                    }
+                }
+            $translations_str .= "\n\t\t\t}";
+        }
+
+        $translations_str .= "\n\t\t}";
+
         return $translations_str;
     }
 
