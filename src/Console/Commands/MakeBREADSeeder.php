@@ -151,8 +151,8 @@ class MakeBREADSeeder extends GeneratorCommand
             $menu_item_str = "\n\t\tif(config('voyager.bread.add_menu_item')){";
 
             $parent_id = $menu_item->parent_id ?? 'null';
-            $parameters = $this->detailsToStr($menu_item->parameters);
-            $menu_item_str .= "\n\t\t\$menu = Menu::where('name', config('voyager.bread.default_menu'))->firstOrFail();
+            $parameters = $this->detailsToStr($menu_item->parameters, false);
+            $menu_item_str .= "\n\t\t\t\$menu = Menu::where('name', config('voyager.bread.default_menu'))->firstOrFail();
             \$menuItem = MenuItem::firstOrNew([
                 'menu_id' => \$menu->id,
                 'title'   => '{$menu_item->title}',
@@ -224,11 +224,14 @@ class MakeBREADSeeder extends GeneratorCommand
         return $translations_str;
     }
 
-    protected function detailsToStr($details){
+    protected function detailsToStr($details, $decode = true){
         if(!is_string($details)){
             $details = json_encode($details);
         }
         $details = (String) Str::of($details)->replace('\\', '\\\\');
-        return "json_decode('{$details}')";
+        if($decode){
+            return "json_decode('{$details}')";
+        }
+        return "'{$details}'";
     }
 }
